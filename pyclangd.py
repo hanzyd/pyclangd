@@ -52,7 +52,7 @@ def update_yaml_config(directory):
         conf_dir = '.config'
 
     config_file = path.join(home, conf_dir, 'clangd', 'config.yaml')
-    sub_dir = path.basename(directory)
+    sub_dir = directory.strip(home)
     cache_dir = path.join(home, '.cache', 'clangd', sub_dir)
     conf_dir = path.dirname(config_file)
 
