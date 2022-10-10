@@ -22,13 +22,20 @@ ARCH_INCLUDES = [
     'arch/{}/include',
     'arch/{}/include/uapi',
     'arch/{}/include/generated',
-    'arch/{}/include/generated/uapi'
+    'arch/{}/include/generated/uapi',
+    "tools/arch/{}/include",
+    "tools/perf/arch/{}/include",
+    'tools/objtool/arch/{}/include',
 ]
 
 TOOLS_INCLUDES = [
     'tools/include',
     'tools/objtool/include',
-    'tools/objtool/arch/arm64/include'
+    "tools/lib/perf/include",
+    "tools/lib/thermal/include",
+    "tools/perf/include",
+    "tools/perf/trace/beauty/include",
+    "tools/perf/util/include"
 ]
 
 
