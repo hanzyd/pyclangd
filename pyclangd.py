@@ -127,7 +127,11 @@ def index_directory(directory, verbose, timeout):
 
     try:
         with open(path.join(directory, 'compile_commands.json'), 'r') as file:
-            command = json.load(file)[0]
+            try:
+                command = json.load(file)[0]
+            except IndexError:
+                print('No files to index')
+                return 1
 
         name = path.join(command.get('directory'), command.get('file'))
         with open(name, 'r') as file:
