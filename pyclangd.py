@@ -9,9 +9,13 @@ from select import select
 from compile import create_json_for_linux
 import json
 import yaml
+import sys
 
 # https://github.com/llvm/clangd-www/blob/main/faq.md
 
+class Devnull(object):
+    def write(self, *_): pass
+    def flush(self, *_): pass
 
 def read_yaml_path_matches():
 
@@ -146,12 +150,13 @@ def index_directory(directory, verbose, timeout):
     file = root_uri + '/' + command.get('file')
     document = {"uri": file, "languageId": "c", "version": 1, "text": source}
 
+    sys_stdout = sys.stdout
+    sys.stdout = Devnull()
+
     client.initialize(getpid(), None, root_uri, None, None, 'off', workspace)
     client.initialized()
     client.didOpen(document)
 
-    progress = ['/', '-', '\\', '|', '/', '-', '|']
-    offset = len(progress)
     try:
         while True:
             r, _, _ = select([proc.stderr.fileno()], [], [], timeout)
@@ -162,18 +167,13 @@ def index_directory(directory, verbose, timeout):
             if not line:
                 break
             else:
-                offset += 1
-                if offset >= len(progress):
-                    offset = 0
-                print('\r{}'.format(progress[offset]), end='')
-                stdout.flush()
                 if 'background indexer is idle' in str(line):
                     break
     except KeyboardInterrupt:
         pass
 
-    print()
     client.exit()
+    sys.stdout = sys_stdout
     return 0
 
 
