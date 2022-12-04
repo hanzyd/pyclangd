@@ -88,7 +88,7 @@ def add_includes(flags, includes):
         flags.append('-I' + include)
 
 
-def assemble_includes(src_dir):
+def assemble_linux_includes(src_dir):
 
     flags = []
 
@@ -105,9 +105,25 @@ def assemble_includes(src_dir):
     return flags
 
 
-def create_json_for_linux(src_dir, cache_dir, driver):
+def assemble_all_includes(src_dir):
 
-    flags = assemble_includes(src_dir);
+    entries = list()
+    for root, _, files in walk(src_dir):
+        if root.endswith('include'):
+            entries.append('-I' + root.replace(src_dir, '.'))
+
+    return entries
+
+
+def create_compile_commands_json(src_dir, cache_dir, driver):
+
+    if path.isdir(path.join(src_dir, 'include/linux')):
+        flags = assemble_linux_includes(src_dir);
+        flags.append('%c -std=c98')
+        flags.append('-nostdinc')
+        flags.append('-D' + '__KERNEL__')
+    else:
+        flags = assemble_all_includes(src_dir)
 
     if driver == 'gcc':
         flags.append('-fsyntax-only')
@@ -115,9 +131,6 @@ def create_json_for_linux(src_dir, cache_dir, driver):
         flags.append('-ferror-limit=0')
 
     flags.append('-w')
-    flags.append('%c -std=c98')
-    flags.append('-nostdinc')
-    flags.append('-D' + '__KERNEL__')
 
     entries = []
 

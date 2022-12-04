@@ -6,7 +6,7 @@ from argparse import ArgumentParser
 from multiprocessing import cpu_count
 from sys import exit, platform, stdout
 from select import select
-from compile import create_json_for_linux
+from compile import create_compile_commands_json
 import json
 import yaml
 import sys
@@ -220,7 +220,7 @@ def main():
     for directory in src_dirs:
         cache_dir = update_yaml_config(directory)
 
-        create_json_for_linux(directory, cache_dir, args.compiler)
+        create_compile_commands_json(directory, cache_dir, args.compiler)
         if args.index:
             index_directory(cache_dir, args.verbose, args.timeout)
 
