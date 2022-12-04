@@ -46,7 +46,7 @@ def read_yaml_path_matches():
     return src_dirs
 
 
-def update_yaml_config(directory):
+def update_yaml_config(directory, verbose):
 
     home = environ.get('HOME')
 
@@ -56,6 +56,9 @@ def update_yaml_config(directory):
         conf_dir = '.config'
 
     config_file = path.join(home, conf_dir, 'clangd', 'config.yaml')
+    if verbose:
+        print("Clangd configuration: {}".format(config_file))
+
     sub_dir = directory.strip(home)
     cache_dir = path.join(home, '.cache', 'clangd', sub_dir)
     conf_dir = path.dirname(config_file)
@@ -218,9 +221,11 @@ def main():
         src_dirs = [directory]
 
     for directory in src_dirs:
-        cache_dir = update_yaml_config(directory)
+        if args.verbose:
+            print("Processing directory: {}".format(directory))
+        cache_dir = update_yaml_config(directory, args.verbose)
 
-        create_compile_commands_json(directory, cache_dir, args.compiler)
+        create_compile_commands_json(directory, cache_dir, args.compiler, args.verbose)
         if args.index:
             index_directory(cache_dir, args.verbose, args.timeout)
 
