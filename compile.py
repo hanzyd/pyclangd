@@ -54,11 +54,11 @@ def make_arch_prepare(src_dir):
     print("Architecture prepare: {}".format(stat_code))
 
 
+# Scan .config file and try to find ARCH
 def arch_detect(src_dir):
     arch = None
     try:
         name = path.join(src_dir,'.config')
-        print(name)
         with open(name, 'r') as config:
             while True:
                 line = config.readline()
@@ -72,15 +72,12 @@ def arch_detect(src_dir):
                 elif "CONFIG_ARM=y" in line:
                     arch = "arm"
     except FileNotFoundError:
-        print('.config not found')
+        pass
 
-    if not arch:
-        print('ARCH not detected')
-        arch = "arm64"
+    print('ARCH set to {}'.format(arch if arch else "arm64 (default)"))
 
-    print('ARCH set to {}'.format(arch))
+    return arch if arch else "arm64"
 
-    return arch
 
 def add_definitions(flags):
     try:
@@ -170,8 +167,9 @@ def create_compile_commands_json(src_dir, cache_dir, driver):
                     'file': name,
                     'arguments': [driver] + flags + [ '-c', '-o', obj] + [name]})
 
-    print('{}: files'.format(len(entries)))
 
     name = path.join(cache_dir,'compile_commands.json')
     with open(name, 'w') as file:
         json.dump(entries, file, indent=2)
+
+    print('{}: have {} entries '.format(name, len(entries)))
