@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import subprocess
 from os import path, walk
 
 
@@ -70,6 +71,13 @@ def arch_detect(src_dir):
 def add_definitions(flags):
     try:
         with open('.config', 'r') as config:
+
+            # returns output as byte string
+            cmc = ['make', 'archprepare']
+            returned_output = subprocess.check_output(cmc)
+            # using decode() function to convert byte string to string
+            print(returned_output.decode("utf-8"))
+
             while True:
                 line = config.readline()
                 # end of file is reached
