@@ -16,6 +16,7 @@ DEF_INCLUDES = [
     'include',
     'include/linux',
     'include/uapi',
+    'include/generated',
     'include/generated/uapi',
 ]
 
@@ -150,7 +151,10 @@ def assemble_all_includes(src_dir):
 
 def create_compile_commands_json(src_dir, cache_dir, driver, verbose):
 
-    if path.isdir(path.join(src_dir, 'include/linux')):
+    is_linux = path.isdir(path.join(src_dir, 'include/linux'))
+    is_u_boot = path.isdir(path.join(src_dir, 'include/u-boot'))
+
+    if is_linux or is_u_boot:
         flags = assemble_linux_includes(src_dir, verbose);
         flags.append('%c -std=c98')
         flags.append('-nostdinc')
