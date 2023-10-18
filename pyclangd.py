@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 from pylspclient import LspClient, LspEndpoint, JsonRpcEndpoint
 from os import path, getpid, environ, makedirs, getcwd
 from subprocess import Popen, PIPE
@@ -10,6 +10,7 @@ from compile import create_compile_commands_json
 import json
 import yaml
 import sys
+import shutil
 
 # https://github.com/llvm/clangd-www/blob/main/faq.md
 
@@ -76,9 +77,28 @@ def update_yaml_config(directory, verbose):
     try:
         with open(config_file, 'r') as file:
             document = file.read()
-            configs = yaml.load_all(document, Loader=yaml.FullLoader)
+            old_configs = yaml.load_all(document, Loader=yaml.FullLoader)
     except FileNotFoundError:
-        configs = {}
+        old_configs = {}
+
+    configs = list()
+    for config in old_configs:
+        try:
+            path_match = config['If']['PathMatch']
+            src_dir = path_match[:-3]
+            if path.isdir(src_dir):
+               configs.append(config)
+               continue
+
+            cache_dir = config['CompileFlags']['CompilationDatabase']
+            if not path.isdir(cache_dir):
+               continue
+
+            if verbose:
+                print("Cleaning up directory: {}".format(cache_dir))
+            shutil.rmtree(cache_dir)
+        except KeyError:
+            pass
 
     entry = None
     for config in configs:
@@ -96,12 +116,12 @@ def update_yaml_config(directory, verbose):
         entry['If']['PathMatch'] = directory + '/.*'
         entry['CompileFlags'] = dict()
         entry['CompileFlags']['CompilationDatabase'] = cache_dir
+        configs.append(entry)
 
-        with open(config_file, 'a') as file:
-            file.writelines(['---\n'])
-            document = yaml.dump(entry, default_flow_style=False,
-                                 indent=2, sort_keys=False)
-            file.write(document)
+    with open(config_file, 'w') as file:
+        document = yaml.dump_all(configs, default_flow_style=False,
+                             indent=2, sort_keys=False)
+        file.write(document)
 
     return entry['CompileFlags']['CompilationDatabase']
 
