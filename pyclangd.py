@@ -215,6 +215,10 @@ def main():
     directory = args.directory or getcwd()
     directory = path.abspath(directory)
 
+    if not path.isdir(directory):
+        print('No such directory: {}'.format(directory))
+        return 1
+
     if args.refresh:
         src_dirs = read_yaml_path_matches()
     else:
