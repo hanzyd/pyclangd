@@ -1,5 +1,4 @@
-#!/usr/bin/env python3.11
-from pylspclient import LspClient, LspEndpoint, JsonRpcEndpoint
+#!/usr/bin/env python3
 from os import path, getpid, environ, makedirs, getcwd
 from subprocess import Popen, PIPE
 from argparse import ArgumentParser
@@ -231,6 +230,13 @@ def main():
                         default=False, help=refresh_help)
 
     args = parser.parse_args()
+
+    if args.index:
+        try:
+            from pylspclient import LspClient, LspEndpoint, JsonRpcEndpoint
+        except ModuleNotFoundError as no_mod:
+            print('For indexing please install: pylspclient')
+            args.index = False
 
     directory = args.directory or getcwd()
     directory = path.abspath(directory)
