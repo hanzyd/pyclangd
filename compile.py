@@ -183,10 +183,12 @@ def create_compile_commands_json(src_dir, cache_dir, driver, verbose):
                     'file': name,
                     'arguments': [driver] + flags + [ '-c', '-o', obj] + [name]})
 
-
     name = path.join(cache_dir,'compile_commands.json')
-    with open(name, 'w') as file:
-        json.dump(entries, file, indent=2)
+    try:
+        with open(name, 'w') as file:
+            json.dump(entries, file, indent=2)
 
-    if verbose:
-        print('{}: have {} entries\n'.format(name, len(entries)))
+        if verbose:
+            print('{}: have {} entries\n'.format(name, len(entries)))
+    except FileNotFoundError:
+        pass
